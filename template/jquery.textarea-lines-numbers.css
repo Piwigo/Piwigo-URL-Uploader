@@ -1,0 +1,25 @@
+.textareaLinesNumbers {
+  position: relative;
+}
+
+.textareaLinesNumbers textarea.linesContainer {
+  display:block;
+  border:none;
+  position:absolute;
+  overflow:hidden;
+  text-align:right;
+  padding-right:0.2em;
+  z-index:0;
+  resize:none;
+}
+
+.textareaLinesNumbers textarea:not(.linesContainer) {
+  z-index:1;
+  position:relative;
+  resize:none;
+}
+
+.textareaLinesNumbers .ui-resizable-se {
+  bottom: 13px;
+  right: -2px;
+}

@@ -1,6 +1,7 @@
 {combine_css path=$URLUPLOADER_PATH|@cat:"template/style.css"}
 {combine_script id="URI" load="footer" path=$URLUPLOADER_PATH|@cat:"template/URI.min.js"}
-{combine_script id="createTextareaWithLines" load="footer" path=$URLUPLOADER_PATH|@cat:"template/createTextareaWithLines.js"}
+{combine_css path=$URLUPLOADER_PATH|@cat:"template/jquery.textarea-lines-numbers.css"}
+{combine_script id="createTextareaWithLines" load="footer" require="jquery.ui.resizable" path=$URLUPLOADER_PATH|@cat:"template/jquery.textarea-lines-numbers.js"}
 
 {if $upload_mode == 'multiple'}
 {combine_script id='jquery.ajaxmanager' load='footer' path='themes/default/js/plugins/jquery.ajaxmanager.js'}
@@ -228,7 +229,10 @@ jQuery("input[name='submit_upload']").click(function() {
   return false;
 });
 
-createTextAreaWithLines('urls');
+$("textarea#urls").textareaLinesNumbers({
+  lines:999,
+  trailing:'.'
+});
 {/literal}
 
 
