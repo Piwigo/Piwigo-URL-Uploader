@@ -1,0 +1,53 @@
+.showInfo {
+  position:static;
+  display:inline-block;
+  padding:1px 6px;
+  width:4px;
+  height:14px;
+  line-height:14px;
+  font-size:0.8em;
+}
+
+FORM.properties SPAN.property {
+  width:180px;
+}
+
+a.delete {
+  display:inline-block;
+  width:16px;
+  height:16px;
+  border:none;
+}
+
+table.table2 {
+  margin-bottom:10px;
+  width:100%;
+}
+.table2 .throw {
+  font-size:12px;
+}
+.table2 .throw th {
+  text-align:left !important;
+  line-height:20px;
+}
+.table2 tbody td {
+  height:18px;
+}
+.table2 tbody tr:not(:last-child) td:not(:last-child) {
+  border-bottom:1px solid rgba(0, 0, 0, 0.3);
+}
+.table2 tbody tr.error {
+  background:rgba(255, 0, 0, 0.3);
+}
+
+#urls {
+  width:630px;
+  height:140px;
+  margin-bottom:5px;
+  font-size:12px;
+  line-height:14px;
+}
+.textAreaWithLines {
+  font-size:12px;
+  line-height:14px;
+}
