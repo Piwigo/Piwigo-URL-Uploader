@@ -1,0 +1,1 @@
+Tilføj fotografier fra fjerne URL'er (se Admin->Fotografier->Tilføj).
