@@ -22,7 +22,7 @@
 // +-----------------------------------------------------------------------+
 $lang['File URL'] = 'File URL';
 $lang['File URL is empty'] = 'URL del file è vuoto';
-$lang['Want to upload many files? Try the <a href="%s">multiple uploader</a> instead.'] = 'Vuoi caricare molti file? Prova il <a href="%s">uploader multiplo</a> invece.';
+$lang['Want to upload many files? Try the <a href="%s">multiple uploader</a> instead.'] = 'Vuoi caricare molti file? Prova l\'<a href="%s">uploader multiplo</a> invece.';
 $lang['Unable to download file'] = 'Impossibile scaricare il file';
 $lang['Pending'] = 'In attesa';
 $lang['One link by line, separate photo name and url with a &laquo; | &raquo;. Photo name is optional.'] = 'Un link per riga, nome foto separata e url con un &laquo; | &raquo;. Il nome della Photo è facoltativo.';
