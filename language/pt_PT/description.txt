@@ -1,0 +1,1 @@
+Adicionar fotos de uma URL remota (ver Admin->Fotos->Adicionar)
