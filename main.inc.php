@@ -24,9 +24,6 @@ define('URLUPLOADER_ADMIN',   get_root_url() . 'admin.php?page=plugin-' . URLUPL
 // +-----------------------------------------------------------------------+
 if (defined('IN_ADMIN'))
 {
-  // admin plugins menu link
-  add_event_handler('get_admin_plugin_menu_links', 'urluploader_admin_plugin_menu_links');
-  
   // new tab on photo page
   add_event_handler('tabsheet_before_select', 'urluploader_tabsheet_before_select', EVENT_HANDLER_PRIORITY_NEUTRAL, 2);
 }

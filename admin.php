@@ -13,7 +13,6 @@ define('PHOTOS_ADD_BASE_URL', get_root_url().'admin.php?page=photos_add');
 include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
 include_once(PHPWG_ROOT_PATH.'admin/include/tabsheet.class.php');
 include_once(PHPWG_ROOT_PATH.'admin/include/functions_upload.inc.php');
-include_once(PHPWG_ROOT_PATH.'admin/include/image.class.php');
 
 $allowed_extensions = array('jpg','jpeg','png','gif');
 $allowed_mimes = array('image/jpeg', 'image/png', 'image/gif');

@@ -2,18 +2,6 @@
 defined('URLUPLOADER_PATH') or die('Hacking attempt!');
 
 /**
- * admin plugins menu link
- */
-function urluploader_admin_plugin_menu_links($menu) 
-{
-  array_push($menu, array(
-    'NAME' => l10n('URL Uploader'),
-    'URL' => URLUPLOADER_ADMIN,
-  ));
-  return $menu;
-}
-
-/**
  * add a tab on photo properties page
  */
 function urluploader_tabsheet_before_select($sheets, $id)
