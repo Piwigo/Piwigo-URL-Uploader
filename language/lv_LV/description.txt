@@ -1,0 +1,1 @@
+Pievieno foto no attālināta URL( skatīt Admin->Photos->Add)
