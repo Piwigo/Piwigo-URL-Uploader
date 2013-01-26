@@ -158,12 +158,12 @@ var queuedManager = jQuery.manageAjax.create('queued', {
   maxRequests: 1
 });
 
-function performImport(file_url, category, name, level, $target) {
+function performImport(file_url, category, name, level, url_in_comment, $target) {
   queuedManager.add({
     type: 'GET',
     dataType: 'json',
     url: 'ws.php',
-    data: { method: 'pwg.images.addRemote', file_url: file_url, category: category, name: name, level: level, format: 'json' },
+    data: { method: 'pwg.images.addRemote', file_url: file_url, category: category, name: name, level: level, url_in_comment: url_in_comment, format: 'json' },
     success: function(data) {
       if (data['stat'] == 'ok') {
         $target.remove();
@@ -222,6 +222,7 @@ jQuery("input[name='submit_upload']").click(function() {
       $("select[name=category] option:selected").val(),
       $(this).data('name'),
       $("select[name=level] option:selected").val(),
+      $("input[name=url_in_comment]").is(":checked"),
       $(this)
       );
   });
@@ -391,6 +392,12 @@ a.delete {
             <input type="text" name="photo_name" size="40">
           </label>
         </li>
+        <li>
+          <label>
+            <span class="property"><input type="checkbox" name="url_in_comment" checked="checked"></span>
+            {'Add website URL in photo description'|@translate}
+          </label>
+        </li>
       </ul>      
       
       <p id="uploadModeInfos">{'Want to upload many files? Try the <a href="%s">multiple uploader</a> instead.'|@translate|@sprintf:$switch_url}</p>
@@ -409,6 +416,14 @@ a.delete {
         </thead>
         <tbody>
         </tbody>
+        <tfoot>
+          <tr><th colspan="4">
+          <label>
+            <input type="checkbox" name="url_in_comment" checked="checked">
+            {'Add website URL in photo description'|@translate}
+          </label>
+          </th></tr>
+        </tfoot>
       </table>
       
       <p>

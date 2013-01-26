@@ -11,5 +11,6 @@ $lang['Want to upload many files? Try the <a href="%s">multiple uploader</a> ins
 $lang['Multiple uploader doesn\'t work? Try the <a href="%s">single uploader</a> instead.'] = 'Multiple uploader doesn\'t work? Try the <a href="%s">single uploader</a> instead.';
 $lang['One link by line, separate photo name and url with a &laquo; | &raquo;. Photo name is optional.'] = 'One link by line, separate photo name and url with a &laquo; | &raquo;. Photo name is optional.';
 $lang['Add links'] = 'Add links';
+$lang['Add website URL in photo description'] = 'Add website URL in photo description';
 
 ?>

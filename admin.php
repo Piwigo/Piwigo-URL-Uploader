@@ -82,14 +82,23 @@ if (isset($_GET['processed']))
           $_POST['level']
           );
         
+        $updates = array();
         if (!empty($_POST['photo_name']))
         {
-          single_update(
-            IMAGES_TABLE,
-            array('name'=>$_POST['photo_name']),
-            array('id' => $image_id)
-            );
+          $updates['name'] = $_POST['photo_name'];
         }
+        if (isset($_POST['url_in_comment']))
+        {
+          $url = parse_url($_POST['file_url']);
+          $url = $url['scheme'].'://'.$url['host'];
+          $updates['comment'] = '<a href="'. $url . '">'. $url .'</a>';
+        }
+        
+        single_update(
+          IMAGES_TABLE,
+          $updates,
+          array('id' => $image_id)
+          );
         
         $image_ids = array($image_id);
       }

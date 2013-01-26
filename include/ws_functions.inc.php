@@ -17,6 +17,7 @@ function urluploader_ws_add_methods($arr)
         'default' => 0,
         'maxValue' => $conf['available_permission_levels']
         ),
+      'url_in_comment' => array('default' => true),
       ),
     'Add image from remote URL.'
     );
@@ -83,14 +84,23 @@ function ws_images_addRemote($params, &$service)
     $params['level']
     );
   
+  $updates = array();
   if (!empty($params['name']))
   {
-    single_update(
-      IMAGES_TABLE,
-      array('name'=>$params['name']),
-      array('id' => $image_id)
-      );
+    $updates['name'] = $params['name'];
   }
+  if ($params['url_in_comment']=='true')
+  {
+    $url = parse_url($params['file_url']);
+    $url = $url['scheme'].'://'.$url['host'];
+    $updates['comment'] = '<a href="'. $url . '">'. $url .'</a>';
+  }
+  
+  single_update(
+    IMAGES_TABLE,
+    $updates,
+    array('id' => $image_id)
+    );
   
   
   // return infos
