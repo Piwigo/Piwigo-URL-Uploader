@@ -31,4 +31,5 @@ $lang['Invalid file URL'] = 'Невірний URL файлу';
 $lang['Invalid file type'] = 'Невірний тип файлу';
 $lang['Pending'] = 'Очікування';
 $lang['Unable to download file'] = 'Не вдалося завантажити файл';
+$lang['Add website URL in photo description'] = 'Додати URL сайту в описі фото';
 ?>
