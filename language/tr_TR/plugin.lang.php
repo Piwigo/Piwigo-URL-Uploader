@@ -31,4 +31,5 @@ $lang['File URL is empty'] = 'Dosya URL alanı boş';
 $lang['Delete this item'] = 'Bunu sil';
 $lang['File URL'] = 'Dosya URL';
 $lang['Add links'] = 'Bağlantıları ekle';
+$lang['Add website URL in photo description'] = 'Fotoğraf açıklamasına Site URL adresini ekle';
 ?>
