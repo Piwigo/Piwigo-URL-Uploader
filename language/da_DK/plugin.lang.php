@@ -31,4 +31,5 @@ $lang['One link by line, separate photo name and url with a &laquo; | &raquo;. P
 $lang['Pending'] = 'Afventer';
 $lang['Unable to download file'] = 'Kunne ikke downloade filen';
 $lang['Want to upload many files? Try the <a href="%s">multiple uploader</a> instead.'] = 'Ønsker du at uploade mange filer? Prøv <a href="%s">masseupload</a> i stedet.';
+$lang['Add website URL in photo description'] = 'Tilføj hjemmeside-URL i fotobeskrivelse';
 ?>
