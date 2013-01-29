@@ -31,4 +31,5 @@ $lang['One link by line, separate photo name and url with a &laquo; | &raquo;. P
 $lang['Pending'] = 'Pendente';
 $lang['Unable to download file'] = 'Não foi possível baixar o arquivo';
 $lang['Want to upload many files? Try the <a href="%s">multiple uploader</a> instead.'] = 'Quer enviar vários arquivos? Tente então o <a href="%s">envio múltiplo</a>';
+$lang['Add website URL in photo description'] = 'Adicionar URL do site na descrição da foto';
 ?>
