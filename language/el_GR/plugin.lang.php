@@ -31,4 +31,5 @@ $lang['File URL is empty'] = 'URL αρχείου είναι κενό';
 $lang['File URL'] = 'URL αρχείου';
 $lang['Delete this item'] = 'Διαγραφή αυτού του στοιχείου';
 $lang['Add links'] = 'Προσθέστε συνδέσμους';
+$lang['Add website URL in photo description'] = 'Προσθήκη του URL της ιστοσελίδας στην περιγραφή της φωτογραφίας';
 ?>
