@@ -1,0 +1,1 @@
+Pridať fotky zo vzdialenej URL (pozri Admin->Photos->Add)
