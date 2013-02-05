@@ -31,4 +31,5 @@ $lang['File URL is empty'] = 'Faila URL ir tukšs';
 $lang['File URL'] = 'Faila URL';
 $lang['Delete this item'] = 'Dzēst šo vienumu';
 $lang['Add links'] = 'Pievienot saites';
+$lang['Add website URL in photo description'] = 'Pievienot interneta vietnes URL fotogrāfijas aprakstā';
 ?>
