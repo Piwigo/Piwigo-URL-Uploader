@@ -31,4 +31,5 @@ $lang['Invalid file type'] = 'Tipo di file non valido';
 $lang['Invalid file URL'] = 'File URL non valido';
 $lang['Add links'] = 'Aggiungi links';
 $lang['Delete this item'] = 'Elimina questo articolo';
+$lang['Add website URL in photo description'] = 'Aggiungi URL del sito web nella descrizione della foto';
 ?>
