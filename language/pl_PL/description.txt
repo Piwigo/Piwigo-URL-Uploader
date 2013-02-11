@@ -1,0 +1,1 @@
+Dodawaj zdjęcia za pomocą odnośników (zobacz Administracja->Zdjęcia->Dodaj)
