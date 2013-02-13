@@ -31,4 +31,5 @@ $lang['One link by line, separate photo name and url with a &laquo; | &raquo;. P
 $lang['Pending'] = '处理中';
 $lang['Unable to download file'] = '无法下载文件';
 $lang['Want to upload many files? Try the <a href="%s">multiple uploader</a> instead.'] = '需要上传大量文件？请尝试 <a href="%s">批量上传</a>。';
+$lang['Add website URL in photo description'] = '在照片描述中添加网站链接';
 ?>
