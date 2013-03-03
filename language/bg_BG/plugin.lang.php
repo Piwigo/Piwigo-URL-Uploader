@@ -31,4 +31,5 @@ $lang['File URL is empty'] = 'Невъведен адрес на файл';
 $lang['File URL'] = 'Адрес на файл';
 $lang['Delete this item'] = 'Изтриване на позицията';
 $lang['Add links'] = 'Добавяне на линк';
+$lang['Add website URL in photo description'] = 'Добавяне на уебсайт адрес към описание в снимка';
 ?>
