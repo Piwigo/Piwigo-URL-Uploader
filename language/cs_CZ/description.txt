@@ -1,0 +1,1 @@
+Vloží fotografie z URL odkazu (viz. Admin->Fotky->Přidat)
