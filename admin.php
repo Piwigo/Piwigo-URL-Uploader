@@ -22,6 +22,8 @@ $tabsheet->set_id('photos_add');
 $tabsheet->select('url_uploader');
 $tabsheet->assign();
 
+$page['active_menu'] = get_active_menu('photo');
+
 
 // +-----------------------------------------------------------------------+
 // |                             process form                              |
@@ -109,10 +111,10 @@ if (isset($_GET['processed']))
   {
     if (isset($_POST['onUploadError']) and is_array($_POST['onUploadError']) and count($_POST['onUploadError']) > 0)
     {
-      array_push($page['errors'], sprintf(l10n('%d photos not imported'), count($_POST['onUploadError'])));
+      $page['errors'][] = l10n('%d photos not imported', count($_POST['onUploadError']));
       foreach ($_POST['onUploadError'] as $error)
       {
-        array_push($page['errors'], $error);
+        $page['errors'][] = $error;
       }
     }
   
@@ -139,24 +141,18 @@ SELECT id, file, path
       'link' =>  get_root_url().'admin.php?page=photo-'.$image_id.'&amp;cat_id='.$category_id,
       );
 
-    array_push($page['thumbnails'], $thumbnail);
+    $page['thumbnails'][] = $thumbnail;
   }
 
   if (!empty($page['thumbnails']))
   {
     // nb uploaded
-    array_push($page['infos'], sprintf(
-      l10n('%d photos uploaded'),
-      count($page['thumbnails'])
-      ));
+    $page['infos'][] = l10n('%d photos uploaded', count($page['thumbnails']));
 
     // level
     if (0 != $_POST['level'])
     {
-      array_push($page['infos'], sprintf(
-        l10n('Privacy level set to "%s"'),
-        l10n(sprintf('Level %d', $_POST['level']))
-        ));
+      $page['infos'][] = l10n('Privacy level set to "%s"', l10n(sprintf('Level %d', $_POST['level'])));
     }
 
     // new category count
@@ -168,11 +164,7 @@ SELECT COUNT(*)
     list($count) = pwg_db_fetch_row(pwg_query($query));
     $category_name = get_cat_display_name_from_id($category_id, 'admin.php?page=album-');
     
-    array_push($page['infos'], sprintf(
-      l10n('Album "%s" now contains %d photos'),
-      '<em>'.$category_name.'</em>',
-      $count
-      ));
+    $page['infos'][] = l10n('Album "%s" now contains %d photos', '<em>'.$category_name.'</em>', $count);
     
     $page['batch_link'] = PHOTOS_ADD_BASE_URL.'&batch='.implode(',', $image_ids);
   }
@@ -188,7 +180,7 @@ include(PHPWG_ROOT_PATH.'admin/include/photos_add_direct_prepare.inc.php');
 $upload_modes = array('single', 'multiple');
 $upload_mode = isset($conf['url_uploader_mode']) ? $conf['url_uploader_mode'] : 'single';
 
-if ( isset($_GET['upload_mode']) and $_GET['upload_mode']!=$upload_mode and in_array($_GET['upload_mode'], $upload_modes) )
+if (isset($_GET['upload_mode']) and $_GET['upload_mode']!=$upload_mode and in_array($_GET['upload_mode'], $upload_modes))
 {
   $upload_mode = $_GET['upload_mode'];
   conf_update_param('url_uploader_mode', $upload_mode);
@@ -217,5 +209,3 @@ $template->assign(array(
   
 // send page content
 $template->assign_var_from_handle('ADMIN_CONTENT', 'urluploader_content');
-
-?>

@@ -19,7 +19,9 @@ function urluploader_ws_add_methods($arr)
         ),
       'url_in_comment' => array('default' => true),
       ),
-    'Add image from remote URL.'
+    'Add image from remote URL.',
+    null,
+    array('admin_only'=>true)
     );
 }
 
@@ -32,6 +34,8 @@ function ws_images_addRemote($params, &$service)
     return new PwgError(401, 'Access denied');
   }
   
+  load_language('plugin.lang', URLUPLOADER_PATH);
+  
   $params = array_map('trim', $params);
   
   $allowed_extensions = array('jpg','jpeg','png','gif');
@@ -40,17 +44,17 @@ function ws_images_addRemote($params, &$service)
   // check empty url
   if (empty($params['file_url']))
   {
-    return new PwgError(WS_ERR_INVALID_PARAM, 'File URL is empty');
+    return new PwgError(WS_ERR_INVALID_PARAM, l10n('File URL is empty'));
   }
   // check remote url
   if (!url_is_remote($params['file_url']))
   {
-    return new PwgError(WS_ERR_INVALID_PARAM, 'Invalid file URL');
+    return new PwgError(WS_ERR_INVALID_PARAM, l10n('Invalid file URL'));
   }
   // check file extension
   if (!in_array(strtolower(get_extension($params['file_url'])), $allowed_extensions))
   {
-    return new PwgError(WS_ERR_INVALID_PARAM, 'Invalid file type');
+    return new PwgError(WS_ERR_INVALID_PARAM, l10n('Invalid file type'));
   }
 
   // download file
@@ -65,13 +69,13 @@ function ws_images_addRemote($params, &$service)
   if (!$result)
   {
     @unlink($temp_filename);
-    return new PwgError(WS_ERR_INVALID_PARAM, 'Unable to download file');
+    return new PwgError(WS_ERR_INVALID_PARAM, l10n('Unable to download file'));
   }
   // check mime-type
   if (!in_array(get_mime($temp_filename, $allowed_mimes[0]), $allowed_mimes))
   {
     @unlink($temp_filename);
-    return new PwgError(WS_ERR_INVALID_PARAM, 'Invalid file type');
+    return new PwgError(WS_ERR_INVALID_PARAM, l10n('Invalid file type'));
   }
 
   // add photo
@@ -130,5 +134,3 @@ SELECT id, path
     'thumbnail_url' => preg_replace('#^'.PHPWG_ROOT_PATH.'#', './', DerivativeImage::thumb_url($image_infos)),
     );
 }
-
-?>
