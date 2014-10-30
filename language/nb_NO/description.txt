@@ -1,0 +1,1 @@
+Legg til bilder fra eksterne URL (se Admin->Foto->Legg til)
