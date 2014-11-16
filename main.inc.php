@@ -10,10 +10,20 @@ Author URI: http://www.strangeplanet.fr
 
 defined('PHPWG_ROOT_PATH') or die('Hacking attempt!');
 
+if (basename(dirname(__FILE__)) != 'url_uploader')
+{
+  add_event_handler('init', 'urluploader_error');
+  function urluploader_error()
+  {
+    global $page;
+    $page['errors'][] = 'URL Uploader folder name is incorrect, uninstall the plugin and rename it to "url_uploader"';
+  }
+  return;
+}
 
-define('URLUPLOADER_ID',      basename(dirname(__FILE__)));
-define('URLUPLOADER_PATH' ,   PHPWG_PLUGINS_PATH . URLUPLOADER_ID . '/');
-define('URLUPLOADER_ADMIN',   get_root_url() . 'admin.php?page=plugin-' . URLUPLOADER_ID);
+
+define('URLUPLOADER_PATH' , PHPWG_PLUGINS_PATH . 'url_uploader/');
+define('URLUPLOADER_ADMIN', get_root_url() . 'admin.php?page=plugin-url_uploader');
 
 
 if (defined('IN_ADMIN'))
