@@ -122,15 +122,31 @@ SELECT id, name, permalink
     );
     
   $query = '
-SELECT id, path
+SELECT id, path, name
   FROM '.IMAGES_TABLE.'
   WHERE id = '.$image_id.'
 ;';
   $image_infos = pwg_db_fetch_assoc(pwg_query($query));
+  
+  $query = '
+SELECT
+    COUNT(*) AS nb_photos
+  FROM '.IMAGE_CATEGORY_TABLE.'
+  WHERE category_id = '.$params['category'].'
+;';
+  $category_infos = pwg_db_fetch_assoc(pwg_query($query));
+  
+  $category_name = get_cat_display_name_from_id($params['category'], null);
 
   return array(
     'image_id' => $image_id,
     'url' => make_picture_url($url_params),
-    'thumbnail_url' => preg_replace('#^'.PHPWG_ROOT_PATH.'#', './', DerivativeImage::thumb_url($image_infos)),
+    'src' => DerivativeImage::thumb_url($image_infos),
+    'name' => $image_infos['name'],
+    'category' => array(
+      'id' => $params['category'],
+      'nb_photos' => $category_infos['nb_photos'],
+      'label' => $category_name,
+      ),
     );
 }

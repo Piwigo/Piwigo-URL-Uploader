@@ -1,20 +1,48 @@
 {combine_css path=$URLUPLOADER_PATH|cat:'template/style.css'}
 {combine_script id='URI' load='footer' path=$URLUPLOADER_PATH|cat:'template/URI.min.js'}
-{combine_css path=$URLUPLOADER_PATH|cat:'template/jquery.textarea-lines-numbers.css'}
-{combine_script id='createTextareaWithLines' load='footer' require='jquery.ui.resizable' path=$URLUPLOADER_PATH|cat:'template/jquery.textarea-lines-numbers.js'}
 
-{if $upload_mode == 'multiple'}
+{combine_css path=$URLUPLOADER_PATH|cat:'template/jquery.textarea-lines-numbers.css'}
+{combine_script id='jquery.textarea-lines-numbers' load='footer' require='jquery.ui.resizable' path=$URLUPLOADER_PATH|cat:'template/jquery.textarea-lines-numbers.js'}
+
+{combine_script id='common' load='footer' path='admin/themes/default/js/common.js'}
 {combine_script id='jquery.ajaxmanager' load='footer' path='themes/default/js/plugins/jquery.ajaxmanager.js'}
+
+{combine_css path="themes/default/js/plugins/jquery.jgrowl.css"}
 {combine_script id='jquery.jgrowl' load='footer' require='jquery' path='themes/default/js/plugins/jquery.jgrowl_minimized.js' }
-{combine_script id='jquery.ui.progressbar' load='footer'}
-{combine_css path='themes/default/js/plugins/jquery.jgrowl.css'}
-{/if}
+
+{combine_script id='LocalStorageCache' load='footer' path='admin/themes/default/js/LocalStorageCache.js'}
+
+{combine_script id='jquery.selectize' load='footer' path='themes/default/js/plugins/selectize.min.js'}
+{combine_css id='jquery.selectize' path="themes/default/js/plugins/selectize.{$themeconf.colorscheme}.css"}
 
 {include file='include/colorbox.inc.tpl'}
 {include file='include/add_album.inc.tpl'}
 
 
 {footer_script}
+{* <!-- CATEGORIES --> *}
+var categoriesCache = new CategoriesCache({
+  serverKey: '{$CACHE_KEYS.categories}',
+  serverId: '{$CACHE_KEYS._hash}',
+  rootUrl: '{$ROOT_URL}'
+});
+
+categoriesCache.selectize(jQuery('[data-selectize=categories]'), {
+  filter: function(categories, options) {
+    if (categories.length > 0) {
+      jQuery("#albumSelection, .selectFiles, .showFieldset").show();
+    }
+    
+    return categories;
+  }
+});
+
+jQuery('[data-add-album]').pwgAddAlbum({
+  afterSelect: function() {
+    jQuery("#albumSelection, .selectFiles, .showFieldset").show();
+  }
+});
+
 (function($){
   var allowed_extensions = new Array('jpeg','jpg','png','gif');
 
@@ -35,18 +63,10 @@
     return false;
   });
 
-  {* <!-- MULTIPLE UPLOAD --> *}
-  {if $upload_mode == 'multiple'}
   function checkUploadStart() {
     var nbErrors = 0;
     
-    $('#formErrors').hide();
-    $('#formErrors li').hide();
-
-    if ($('#albumSelect option:selected').length == 0) {
-      $('#formErrors #noAlbum').show();
-      nbErrors++;
-    }
+    $('#formErrors, #formErrors li').hide();
     
     var nbFiles = $('table#links tr.pending').length;
     
@@ -68,24 +88,29 @@
     return str.replace(/^\s+/g,'').replace(/\s+$/g,'')
   }
 
-  $('input[name=add_links]').click(function() {
+  $('#addFiles').click(function(e) {
+    var ok = 0;
+    
     $input = $('textarea#urls');
     
     if ($input.val() != '') {
-      $('table#links').show();
-      
       var lines = $input.val().split('\n');
       var html = '';
-      $input.val('');
       
       for (i in lines) {
-        line = lines[i].split('|');
-        item = {};
+        var line = trim(lines[i]);
+        
+        if (!line) {
+          continue;
+        }
+        
+        line = line.split('|');
+        var item = {};
         
         // no name given
         if (line.length == 1) {
           uri = new URI(trim(line[0]));
-          item.name = '';
+          item.name = uri.filename(true).replace(new RegExp('\\.'+uri.suffix(true)+'$'), '');
         }
         // name given
         else {
@@ -119,33 +144,60 @@
           }
         }
         
+        if (item.status == 'pending') {
+          ok++;
+        }
+        
         // add link to table
         html+= '<tr class="'+ item.status + '" data-name="'+ item.name +'" data-url="'+ item.url +'">'+
           '<td>'+ item.name +'</td>'+
-          '<td><a href="'+ item.url +'">'+ item.short_url +'</a></td>'+
+          '<td><a href="'+ item.url +'" class="colorbox">'+ item.short_url +'</a></td>'+
           '<td>'+ item.info +'</td>'+
-          '<td><a class="delete" title="{'Delete this item'|translate|escape:javascript}">&nbsp;</a></td>'+
+          '<td><i class="icon-cancel-circled delete" title="{'Delete this item'|translate|escape:javascript}"></i></td>'+
         '</tr>';
       }
       
       $('table#links tbody').append(html);
     }
     
+    if (ok > 0) {
+      $('#startUpload').prop('disabled', false);
+      $('table#links').show();
+    }
+    
+    $input.val('');
     $input.focus();
-    return false;
+    
+    e.preventDefault();
+  });
+  
+  $('table#links').on('click', '.colorbox', function(e) {
+      $.colorbox({
+        href: this.href,
+        maxWidth: '80%',
+        maxHeight: '90%'
+      });
+      e.preventDefault();
   });
 
-  $('table#links').on('click', 'a.delete', function() {
-    $(this).parents('tr').remove();
+  $('table#links').on('click', '.delete', function() {
+    var $parent = $(this).closest('table');
+    $(this).closest('tr').remove();
     $('textarea#urls').focus();
+    $parent.toggle($parent.find('tr').length > 0);
+    $('#startUpload').prop('disabled', $parent.find('tr.pending').length == 0);
   });
 
   // AJAX MANAGER
   var import_done = 0;
+  var import_success = 0;
   var import_selected = 0;
+  var uploadedPhotos = [];
+  var uploadCategory = null;
+  
   var queuedManager = $.manageAjax.create('queued', {
     queue: true,  
-    maxRequests: 1
+    maxRequests: 2
   });
 
   function performImport(file_url, category, name, level, url_in_comment, $target) {
@@ -163,11 +215,18 @@
         format: 'json'
       },
       success: function(data) {
-        if (data['stat'] == 'ok') {
+        if (data.stat == 'ok') {
           $target.remove();
-          $('#uploadedPhotos').parent('fieldset').show();
-          $('#uploadedPhotos').prepend('<img src="'+ data['result']['thumbnail_url'] +'" class="thumbnail"> ');
-          $('#uploadForm').append('<input type="hidden" name="imageIds[]" value="'+ data['result']['image_id'] +'">');
+          
+          var html = '<a href="admin.php?page=photo-'+data.result.image_id+'" target="_blank">';
+          html += '<img src="'+data.result.src+'" class="thumbnail" title="'+data.result.name+'">';
+          html += '</a> ';
+          
+          jQuery("#uploadedPhotos").prepend(html).parent('fieldset').show();
+          
+          uploadedPhotos.push(parseInt(data.result.image_id));
+          uploadCategory = data.result.category;
+          import_success++;
         }
         else {
           $.jGrowl(name +' : '+ data['message'], { 
@@ -175,16 +234,16 @@
             header: '{'ERROR'|translate}'
           });
             
-          $target.children('td:nth-child(3)').html(lang[data['message']]);
-          $('#uploadForm').append('<input type="hidden" name="onUploadError[]" value="'+ file_url +' : '+ data['message'] +'">');
+          $target.addClass('error').children('td:nth-child(3)').html(data.message);
+          $('#uploadForm').append('<input type="hidden" name="onUploadError[]" value="'+ file_url +' : '+ data.message +'">');
         }
         
         import_done++;
-        $('#progressbar').progressbar({ value: import_done });
-        $('#progressCurrent').text(import_done);
+
+        $('#uploadingActions .progressbar').width((import_done/import_selected*100)+'%');
         
         if (import_done == import_selected) {
-          $('#uploadForm').submit();
+          finishUpload();
         }
       },
       error: function(data) {
@@ -193,12 +252,38 @@
           header: '{'ERROR'|translate}'
         });
         
-        $target.children('td:nth-child(3)').html('{'an error happened'|translate|escape:javascript}');
+        $target.addClass('error').children('td:nth-child(3)').html('{'an error happened'|translate|escape:javascript}');
       }
     });
   }
+  
+  function finishUpload() {
+    jQuery(".infos").append('<ul><li>'+sprintf("{'%d photos uploaded'|translate|escape:javascript}", uploadedPhotos.length)+'</li></ul>');
+    
+    if (uploadCategory) {
+      var html = sprintf(
+        "{'Album "%s" now contains %d photos'|translate|escape:javascript}",
+        '<a href="admin.php?page=album-'+uploadCategory.id+'">'+uploadCategory.label+'</a>',
+        parseInt(uploadCategory.nb_photos)
+      );
 
-  $('input[name=submit_upload]').click(function() {
+      jQuery(".infos ul").append('<li>'+html+'</li>');
+    }
+
+    jQuery(".selectAlbum, #uploadingActions, #permissions, .showFieldset").hide();
+    jQuery(".infos, .afterUploadActions").show();
+    
+    if (import_success == import_selected) {
+      jQuery(".selectFiles").hide();
+    }
+    
+    jQuery(".batchLink").attr("href", "admin.php?page=photos_add&section=direct&batch="+uploadedPhotos.join(","));
+    jQuery(".batchLink").html(sprintf("{'Manage this set of %d photos'|translate|escape:javascript}", uploadedPhotos.length));
+
+    jQuery(window).unbind('beforeunload');
+  }
+
+  $('#startUpload').click(function(e) {
     if (!checkUploadStart()) {
       return false;
     }
@@ -206,24 +291,30 @@
     import_selected = $('table#links tr.pending').length;
     
     $('table#links a.delete').hide();
+    $('#startUpload, #addFiles').hide();
+    $('#uploadingActions').show();
+    $("select[name=level]").attr("disabled", "disabled");
     
-    $('#progressbar').progressbar({ max: import_selected, value:0 });
-    $('#progressMax').text(import_selected);
-    $('#progressCurrent').text(0);
-    $('#uploadProgress').show();
+    $(window).bind('beforeunload', function() {
+      return "{'Upload in progress'|translate|escape}";
+    });
+    
+    var album = $('select[name=category] option:selected').val(),
+        level = $('select[name=level] option:selected').val(),
+        add_url = $('input[name=url_in_comment]').is(':checked');
     
     $('table#links tr.pending').each(function() {
       performImport(
         $(this).data('url'),
-        $('select[name=category] option:selected').val(),
+        album,
         $(this).data('name'),
-        $('select[name=level] option:selected').val(),
-        $('input[name=url_in_comment]').is(':checked'),
+        level,
+        add_url,
         $(this)
         );
     });
       
-    return false;
+    e.preventDefault();
   });
 
   $('textarea#urls').textareaLinesNumbers({
@@ -231,59 +322,8 @@
     trailing:'.'
   });
 
-
-{* <!-- SINGLE UPLOAD --> *}
-{else}
-  function checkUploadStart() {
-    var nbErrors = 0;
-    
-    $('#formErrors').hide();
-    $('#formErrors li').hide();
-
-    if ($('#albumSelect option:selected').length == 0) {
-      $('#formErrors #noAlbum').show();
-      nbErrors++;
-    }
-    
-    if ($('input[name=file_url]').val() == '') {
-      $('#formErrors #urlEmpty').show();
-      nbErrors++;
-    }
-    else {
-      uri = new URI($('input[name=file_url]').val());
-      if (uri.is('relative')) {
-        $('#formErrors #urlError').show();
-        nbErrors++;
-      }
-      else if (allowed_extensions.indexOf(uri.suffix().toLowerCase()) == -1) {
-        $('#formErrors #typeError').show();
-        nbErrors++;
-      }
-    }
-
-    if (nbErrors != 0) {
-      $('#formErrors').show();
-      return false;
-    }
-    else {
-      return true;
-    }
-  }
-
-  $('input[name=submit_upload]').click(function() {
-    return checkUploadStart();
-  });
-{/if}
-
 }(jQuery));
 {/footer_script}
-
-
-{html_style}
-a.delete {
-  background:url('admin/include/uploadify/cancel.png');
-}
-{/html_style}
 
 
 <div class="titrePage">
@@ -312,27 +352,13 @@ a.delete {
     <div class="hideButton" style="text-align:center"><a href="{$hide_warnings_link}">{'Hide'|translate}</a></div>
   </div>
 {/if}
+
+  <div class="infos" style="display:none"></div>
+
+  <p class="afterUploadActions" style="margin:10px; display:none;"><a class="batchLink"></a> | <a href="{$URLUPLOADER_ADMIN}">{'Add another set of photos'|@translate}</a></p>
   
-{if !empty($thumbnails)}
-  <fieldset>
-    <legend>{'Uploaded Photos'|translate}</legend>
-    <div>
-    {foreach from=$thumbnails item=thumbnail}
-      <a href="{$thumbnail.link}" class="externalLink">
-        <img src="{$thumbnail.src}" alt="{$thumbnail.file}" title="{$thumbnail.title}" class="thumbnail">
-      </a>
-    {/foreach}
-    </div>
-    
-    <p id="batchLink"><a href="{$batch_link}">{$batch_label}</a></p>
-  </fieldset>
-  
-  <p style="margin:10px"><a href="{$another_upload_link}">{'Add another set of photos'|translate}</a></p>
-  
-{else}
   <div id="formErrors" class="errors" style="display:none">
     <ul>
-      <li id="noAlbum">{'Select an album'|translate}</li>
       <li id="noPhoto">{'Select at least one photo'|translate}</li>
       <li id="urlEmpty">{'File URL is empty'|translate}</li>
       <li id="urlError">{'Invalid file URL'|translate}</li>
@@ -341,19 +367,28 @@ a.delete {
     <div class="hideButton" style="text-align:center"><a href="#" id="hideErrors">{'Hide'|translate}</a></div>
   </div>
 
-  <form id="uploadForm" enctype="multipart/form-data" method="post" action="{$form_action}" class="properties">
-    <fieldset>
-      <legend>{'Drop into album'|translate}</legend>
+  <form id="uploadForm" class="properties">
+    <fieldset class="selectAlbum">
+      <legend>{'Drop into album'|@translate}</legend>
 
-      <span id="albumSelection"{if count($category_options) == 0} style="display:none"{/if}>
-      <select id="albumSelect" name="category">
-        {html_options options=$category_options selected=$category_options_selected}
-      </select>
-      <br>{'... or '|translate}</span><a href="#" class="addAlbumOpen" title="{'create a new album'|translate}">{'create a new album'|translate}</a>
-      
+      <span id="albumSelection" style="display:none">
+      <select data-selectize="categories" data-value="{$selected_category|@json_encode|escape:html}"
+        data-default="first" name="category" style="width:600px"></select>
+      <br>{'... or '|@translate}</span>
+      <a href="#" data-add-album="category" title="{'create a new album'|@translate}">{'create a new album'|@translate}</a>
     </fieldset>
 
-    <fieldset>
+    <p class="showFieldset" style="display:none"><a id="showPermissions" href="#">{'Manage Permissions'|translate}</a></p>
+
+    <fieldset id="permissions" style="display:none">
+      <legend>{'Who can see these photos?'|translate}</legend>
+
+      <select name="level" size="1">
+        {html_options options=$level_options selected=$level_options_selected}
+      </select>
+    </fieldset>
+
+    <fieldset class="selectFiles" style="display:none">
       <legend>{'Select files'|translate}</legend>
       
       <p id="uploadWarningsSummary">
@@ -371,33 +406,6 @@ a.delete {
       {/if}
       </p>
 
-{* <!-- SINGLE UPLOAD --> *}
-    {if $upload_mode == 'single'}
-      <ul>
-        <li>
-          <label>
-            <span class="property">{'File URL'|translate}</span>
-            <input type="text" name="file_url" size="70">
-          </label>
-        </li>
-        <li>
-          <label>
-            <span class="property">{'Photo name'|translate}</span>
-            <input type="text" name="photo_name" size="40">
-          </label>
-        </li>
-        <li>
-          <label>
-            <span class="property"><input type="checkbox" name="url_in_comment" checked="checked"></span>
-            {'Add website URL in photo description'|translate}
-          </label>
-        </li>
-      </ul>      
-      
-      <p id="uploadModeInfos">{'Want to upload many files? Try the <a href="%s">multiple uploader</a> instead.'|translate:$switch_url}</p>
-
-{* <!-- MULTIPLE UPLOAD --> *}
-    {else}
       <table id="links" class="table2" style="display:none;">
         <thead>
           <tr class="throw">
@@ -417,46 +425,33 @@ a.delete {
         <textarea id="urls"></textarea>
       </p>
       
-      <p>
-        <label>
-          <input type="checkbox" name="url_in_comment" checked="checked">
-          {'Add website URL in photo description'|translate}
-        </label>
-      </p>
-      
-      <input type="submit" name="add_links" value="{'Add links'|translate}">
-      
-      <p id="uploadModeInfos">{'Multiple uploader doesn\'t work? Try the <a href="%s">single uploader</a> instead.'|translate:$switch_url}</p>
-    {/if}
+      <button id="addFiles" class="buttonLike icon-plus-circled">{'Add links'|translate}</button>
     </fieldset>
-
-    <p class="showFieldset"><a id="showPermissions" href="#">{'Manage Permissions'|translate}</a></p>
-
-    <fieldset id="permissions" style="display:none">
-      <legend>{'Who can see these photos?'|translate}</legend>
-
-      <select name="level" size="1">
-        {html_options options=$level_options selected=$level_options_selected}
-      </select>
-    </fieldset>
-    
-    <p>
-      <input class="submit" type="submit" name="submit_upload" value="{'Start Upload'|translate}">
+      
+    <p class="showFieldset" style="display:none">
+      <label>
+        <input type="checkbox" name="url_in_comment" checked="checked">
+        {'Add website URL in photo description'|translate}
+      </label>
     </p>
+    
+    <div id="uploadingActions" style="display:none">
+      <!--<button id="cancelUpload" class="buttonLike icon-cancel-circled">{'Cancel'|translate}</button>-->
+      
+      <div class="big-progressbar">
+        <div class="progressbar" style="width:0%"></div>
+      </div>
+    </div>
+      
+    <button id="startUpload" class="buttonLike icon-upload" disabled>{'Start Upload'|translate}</button>
+    
   </form>
-
-  <div id="uploadProgress" style="display:none">
-    {'Photo %s of %s'|translate:'<span id="progressCurrent">1</span>':'<span id="progressMax">10</span>'}
-    <br>
-    <div id="progressbar"></div>
-  </div>
 
   <fieldset style="display:none">
     <legend>{'Uploaded Photos'|translate}</legend>
     <div id="uploadedPhotos"></div>
   </fieldset>
 
-{/if} {* empty($thumbnails) *}
 {/if} {* $setup_errors *}
 
 <br>

@@ -12,7 +12,7 @@ function urluploader_tabsheet_before_select($sheets, $id)
     $sheets = 
       array_slice($sheets, 0, 1) +
       array('url_uploader' => array(
-        'caption' => '<span class="icon-link"></span>' . l10n('URL Uploader'),
+        'caption' => '<span class="icon-link"></span>URL Uploader',
         'url' => URLUPLOADER_ADMIN,
         )) +
       array_slice($sheets, 1);

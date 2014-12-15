@@ -50,3 +50,9 @@ table.table2 {
 .linesContainer {
   background:none;
 }
+
+#links .delete {
+  color:red;
+  cursor:pointer;
+  font-size:16px;
+}
