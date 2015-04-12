@@ -1,0 +1,1 @@
+Afegeix fotos des de URL remotes (mireu Administració->Fotos->Afegeix)
