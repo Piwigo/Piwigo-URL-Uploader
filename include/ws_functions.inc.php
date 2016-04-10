@@ -13,8 +13,14 @@ function urluploader_ws_add_methods($arr)
       'file_url' => array(),
       'category' => array('type' => WS_TYPE_ID),
       'name' => array('default' => null),
+      'author' => array('default' => null),
+      'comment' => array('default' => null),
+      'tags' => array(
+        'default' => null,
+        'flags' => WS_PARAM_ACCEPT_ARRAY,
+      ),
       'level' => array(
-        'default' => 0,
+        'default' => null,
         'maxValue' => $conf['available_permission_levels'],
         'type' => WS_TYPE_INT | WS_TYPE_POSITIVE,
       ),
@@ -90,20 +96,34 @@ function ws_images_addRemote($params, &$service)
   $image_id = add_uploaded_file(
     $temp_filename,
     basename($temp_filename),
-    array($params['category']),
-    $params['level']
+    array($params['category'])
   );
 
+
+  // set properties
   $updates = array();
-  if (!empty($params['name']))
+  foreach (array('level', 'name', 'author', 'comment') as $key)
   {
-    $updates['name'] = $params['name'];
+    if (!empty($params[ $key ]))
+    {
+      $updates[ $key ] = $params[ $key ];
+    }
   }
+
   if ($params['url_in_comment'] == 'true')
   {
     $url = parse_url($params['file_url']);
     $url = $url['scheme'] . '://' . $url['host'];
-    $updates['comment'] = '<a href="' . $url . '">' . $url . '</a>';
+    $link = '<a href="' . $url . '">' . $url . '</a>';
+
+    if (!isset($updates['comment']))
+    {
+      $updates['comment'] = $link;
+    }
+    else
+    {
+      $updates['comment'] .= '<br>' . $link;
+    }
   }
 
   single_update(
@@ -111,6 +131,32 @@ function ws_images_addRemote($params, &$service)
     $updates,
     array('id' => $image_id)
   );
+
+
+  // set tags
+  if (!empty($params['tags']))
+  {
+    include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
+
+    $tag_ids = array();
+    if (is_array($params['tags']))
+    {
+      foreach ($params['tags'] as $tag_name)
+      {
+        $tag_ids[] = tag_id_from_tag_name($tag_name);
+      }
+    }
+    else
+    {
+      $tag_names = preg_split('~(?<!\\\),~', $params['tags']);
+      foreach ($tag_names as $tag_name)
+      {
+        $tag_ids[] = tag_id_from_tag_name(preg_replace('#\\\\*,#', ',', $tag_name));
+      }
+    }
+
+    add_tags($tag_ids, array($image_id));
+  }
 
 
   // return infos
