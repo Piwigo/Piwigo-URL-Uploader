@@ -1,1 +1,1 @@
-Füge Fotos von einer remote URL hinzu (siehe Admin->Fotos->Hinzufügen)
+Fotos von einer URL remote hinzufügen (siehe Admin-> Fotos-> Hinzufügen)
