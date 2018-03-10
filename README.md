@@ -6,6 +6,4 @@
 
 ## Developement status
 
-I do not develop for Piwigo anymore thus I do not maintain this project. I will continue to release new versions containing new translations et any submitted merge requests.
-
-If you want to continue working on the plugin, please open a ticket, I can transfer you the ownership of the repository and the plugin page on http://piwigo.org/ext/
+I March 2018 [elespike](https://github.com/elespike) became a co-maintainer of this plugin.
