@@ -110,10 +110,11 @@ function ws_images_addRemote($params, &$service)
     }
   }
 
-  if ($params['url_in_comment'] == 'true')
+  if ($params['url_in_comment'] == true)
   {
+    $url = urldecode($params['file_url']);
     $url = parse_url($params['file_url']);
-    $url = $url['scheme'] . '://' . $url['host'];
+    $url = $url['scheme'] . '://' . $url['host'] . $url['path'];
     $link = '<a href="' . $url . '">' . $url . '</a>';
 
     if (!isset($updates['comment']))
