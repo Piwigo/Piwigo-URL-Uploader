@@ -1,0 +1,1 @@
+Dodajte fotografije z oddaljenega URL-ja (glejte Skrbnik->Slike->Dodaj)
