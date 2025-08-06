@@ -200,7 +200,7 @@ SELECT
   return array(
     'image_id' => $image_id,
     'url' => make_picture_url($url_params),
-    'src' => DerivativeImage::thumb_url($image_infos),
+    'src' => DerivativeImage::url(ImageStdParams::get_by_type(IMG_SQUARE), $image_infos),
     'name' => $image_infos['name'],
     'category' => array(
       'id' => $params['category'],
