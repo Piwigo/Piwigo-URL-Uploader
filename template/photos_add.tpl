@@ -20,6 +20,7 @@
 
 
 {footer_script}
+var pwg_token = '{$pwg_token}';
 {* <!-- CATEGORIES --> *}
 var categoriesCache = new CategoriesCache({
   serverKey: '{$CACHE_KEYS.categories}',
@@ -259,6 +260,16 @@ jQuery('[data-add-album]').pwgAddAlbum({
   }
   
   function finishUpload() {
+    $.ajax({
+      url: "ws.php?format=json&method=pwg.images.uploadCompleted",
+      type: "POST",
+      data: {
+        pwg_token: pwg_token,
+        image_id: uploadedPhotos.join(","),
+        category_id: uploadCategory.id,
+      }
+    });
+
     jQuery(".infos").append('<ul><li>'+sprintf("{'%d photos uploaded'|translate|escape:javascript}", uploadedPhotos.length)+'</li></ul>');
     
     if (uploadCategory) {
