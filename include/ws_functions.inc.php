@@ -46,7 +46,13 @@ function ws_images_addRemote($params, &$service)
 
   load_language('plugin.lang', URLUPLOADER_PATH);
 
-  $params = array_map('trim', $params);
+  foreach ($params as $key => $value)
+  {
+    if (!empty($value))
+    {
+      $params[$key] = trim($value);
+    }
+  }
 
   $allowed_extensions = array('jpg', 'jpeg', 'png', 'gif');
   $allowed_mimes = array('image/jpeg', 'image/png', 'image/gif');
